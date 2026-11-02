@@ -51,9 +51,9 @@ export default function PosPage() {
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [receiptData, setReceiptData] = useState<ReceiptReady | null>(null);
 
-  const products: any = [];
-  const variants: any = [];
-  const tables: any = [];
+  const products = useLiveQuery(() => db.products.orderBy("sort_order").toArray(), []);
+  const variants = useLiveQuery(() => db.variants.toArray(), []);
+  const tables = useLiveQuery(() => db.dtables.toArray(), []);
 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerSel, setCustomerSel] = useState<string | null>(null);
@@ -77,7 +77,7 @@ export default function PosPage() {
   }, []);
 
   useEffect(() => {
-    try { db?.categories?.orderBy("sort_order").toArray().then(setCats).catch(() => {}); } catch { /* ignore */ }
+    try { db?.categories?.orderBy("sort_order").toArray().then(setCats, () => {}); } catch { /* ignore */ }
   }, [products?.length]);
 
   /* pelanggan (butuh internet, opsional) */
@@ -88,8 +88,10 @@ export default function PosPage() {
         .select("id,name,phone,note")
         .order("name")
         .limit(200)
-        .then(({ data }) => setCustomers((data ?? []) as unknown as Customer[]))
-        .catch(() => {});
+        .then(
+          ({ data }) => setCustomers((data ?? []) as unknown as Customer[]),
+          () => {}
+        );
     } catch {
       // env belum ada — abaikan
     }
