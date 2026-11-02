@@ -363,7 +363,7 @@ begin
   update public.sales
     set status = v_status,
         void_reason = trim(p_reason),
-        refund_amount = case when p_mode = 'refund' then total else 0 end,
+        refund_amount = total,
         updated_at = now()
     where id = v_sale.id;
 

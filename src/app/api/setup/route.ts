@@ -16,22 +16,23 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let body: { setup_secret?: string } = {};
+  let raw: unknown;
   try {
-    body = await request.json();
+    raw = await request.json();
   } catch {
     return NextResponse.json({ error: "Permintaan tidak valid" }, { status: 400 });
   }
-  if (body.setup_secret !== secret) {
+  const obj = (raw ?? {}) as { setup_secret?: string };
+  if (obj.setup_secret !== secret) {
     return NextResponse.json({ error: "Secret salah" }, { status: 401 });
   }
 
-  let input: zType;
-  try {
-    input = await parseBody(request);
-  } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+  const parsed = setupSchema.safeParse(raw);
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    return NextResponse.json({ error: first?.message ?? "Data tidak valid" }, { status: 400 });
   }
+  const input = parsed.data;
 
   const admin = supabaseAdmin();
 
@@ -117,16 +118,4 @@ export async function POST(request: NextRequest) {
       "Sukses. Silakan login di /login dengan username & password yang dibuat. " +
       "Setelah ini Anda dapat menghapus SETUP_SECRET dari environment.",
   });
-}
-
-/* helper supaya zod dijalankan di sini */
-type zType = import("@/lib/validation/schemas").SetupInput;
-async function parseBody(request: NextRequest) {
-  const raw = await request.json();
-  const parsed = setupSchema.safeParse(raw);
-  if (!parsed.success) {
-    const first = parsed.error.issues[0];
-    throw new Error(first?.message ?? "Data tidak valid");
-  }
-  return parsed.data;
 }

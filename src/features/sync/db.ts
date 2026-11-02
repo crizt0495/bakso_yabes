@@ -98,6 +98,9 @@ export class BaksokuDB extends Dexie {
       dtables: "id",
       sale_queue: "++id, idempotency_key, status, created_at",
     });
+    this.version(2).stores({
+      recipe_items: "++id, product_id",
+    }).upgrade((tx) => tx.table("recipe_items").clear());
   }
 }
 
