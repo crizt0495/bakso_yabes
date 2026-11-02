@@ -213,7 +213,7 @@ begin
     insert into public.stock_balances (ingredient_id, business_id, qty, avg_cost)
       values ((v_r->>'iid')::uuid, v_business, 0 - (v_r->>'consumed')::numeric, 0)
       on conflict (ingredient_id) do update
-        set qty = public.stock_balances.qty - excluded.qty, updated_at = now();
+        set qty = public.stock_balances.qty + excluded.qty, updated_at = now();
 
     insert into public.stock_movements (
       business_id, ingredient_id, movement_type, qty_change, unit_cost,
