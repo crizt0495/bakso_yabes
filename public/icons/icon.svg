@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#265c39"/>
+  <g transform="translate(96 96)" fill="none" stroke="#faf6ee" stroke-width="24" stroke-linecap="round">
+    <path d="M0 160 h320" />
+    <path d="M40 160 a120 120 0 0 0 240 0" fill="none"/>
+    <!-- bakso: beberapa bulatan dalam mangkuk -->
+    <circle cx="112" cy="96" r="34" fill="#faf6ee" stroke="none"/>
+    <circle cx="200" cy="88" r="28" fill="#8ec8a0" stroke="none"/>
+    <circle cx="248" cy="116" r="20" fill="#faf6ee" stroke="none"/>
+    <!-- uapan -->
+    <path d="M120 24 c-10 12 10 20 0 34" />
+    <path d="M200 16 c-10 12 10 20 0 34"/>
+  </g>
+</svg>

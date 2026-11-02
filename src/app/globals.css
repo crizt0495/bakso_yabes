@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  @apply bg-cream text-gray-800 antialiased;
+  font-feature-settings: "cv02", "cv03";
+}
+
+/* Angka tabel serasi */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sembunyikan scrollbar tipis pada list kasir */
+.scroll-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: #bbdfc6;
+  border-radius: 9999px;
+}

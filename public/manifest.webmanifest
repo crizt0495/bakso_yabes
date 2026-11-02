@@ -1,0 +1,20 @@
+{
+  "name": "BaksoKu — Manajemen Warung Bakso",
+  "short_name": "BaksoKu",
+  "description": "Aplikasi kasir, stok, resep HPP, keuangan dan QR Menu warung bakso.",
+  "id": "/dashboard",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#faf6ee",
+  "theme_color": "#265c39",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Kasir", "url": "/pos" },
+    { "name": "Dashboard", "url": "/dashboard" }
+  ]
+}
