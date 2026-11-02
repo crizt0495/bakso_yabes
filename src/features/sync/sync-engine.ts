@@ -39,14 +39,19 @@ export const MAX_ATTEMPTS = 10;
  * Device — ID perangkat unik + registrasi ke tabel devices
  * ============================================================= */
 export async function getDeviceId(regenerate = false): Promise<string> {
-  if (!regenerate) {
-    const existing = await kvGet<string>("device_id");
-    if (existing) return existing;
+  try {
+    if (!regenerate) {
+      const existing = await kvGet<string>("device_id");
+      if (existing) return existing;
+    }
+    const id = uid();
+    await kvSet("device_id", id);
+    await registerDevice(id);
+    return id;
+  } catch {
+    // Dexie belum siap / env belum ada — fallback id lokal, jangan crash
+    return uid();
   }
-  const id = uid();
-  await kvSet("device_id", id);
-  await registerDevice(id);
-  return id;
 }
 
 async function registerDevice(deviceId: string) {
@@ -76,7 +81,11 @@ async function registerDevice(deviceId: string) {
 }
 
 export async function deviceServerId(): Promise<string | null> {
-  return (await kvGet<string>("device_server_id")) ?? null;
+  try {
+    return (await kvGet<string>("device_server_id")) ?? null;
+  } catch {
+    return null;
+  }
 }
 
 /* =============================================================
@@ -338,8 +347,8 @@ export async function unsentTotal(): Promise<number> {
 
 /* ---------- Auto-retry saat koneksi pulih / aplikasi dibuka ---------- */
 export function setupAutoSync(topics: { onVisible?: boolean; periodicMs?: number } = {}) {
-  void getDeviceId();
-  void syncNow("startup");
+  void getDeviceId().catch(() => {});
+  void syncNow("startup").catch(() => {});
 
   window.addEventListener("online", () => void syncNow("online"));
   if (topics.onVisible !== false) {

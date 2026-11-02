@@ -108,9 +108,17 @@ export const db = new BaksokuDB();
 
 /* ---------- KV helpers ---------- */
 export async function kvGet<T>(key: string): Promise<T | undefined> {
-  const row = await db.kv.get(key);
-  return row?.value as T | undefined;
+  try {
+    const row = await db.kv.get(key);
+    return row?.value as T | undefined;
+  } catch {
+    return undefined;
+  }
 }
 export async function kvSet(key: string, value: unknown) {
-  await db.kv.put({ key, value });
+  try {
+    await db.kv.put({ key, value });
+  } catch {
+    /* ignore — storage unavailable */
+  }
 }
