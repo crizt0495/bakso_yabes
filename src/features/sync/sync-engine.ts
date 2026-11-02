@@ -335,7 +335,7 @@ export async function unsentTotal(): Promise<number> {
 }
 
 /* ---------- Auto-retry saat koneksi pulih / aplikasi dibuka ---------- */
-export function setupAutoSync(topics: { onVisible?: boolean } = {}) {
+export function setupAutoSync(topics: { onVisible?: boolean; periodicMs?: number } = {}) {
   void getDeviceId();
   void syncNow("startup");
 
@@ -344,5 +344,17 @@ export function setupAutoSync(topics: { onVisible?: boolean } = {}) {
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") void syncNow("visible");
     });
+    window.addEventListener("focus", () => void syncNow("focus"));
+  }
+
+  // Retry berkala selama online — menangkap sinkronisasi yang terlewat
+  // (mis. service worker tidak aktif, atau event online tidak terpicu).
+  const interval = topics.periodicMs ?? 60_000;
+  if (interval > 0) {
+    const timer = window.setInterval(() => {
+      if (navigator.onLine) void syncNow("periodic");
+    }, interval);
+    // simpan handle agar dapat dibersihkan (tidak wajib di SPA tunggal)
+    (window as unknown as { __baksokuSyncTimer?: number }).__baksokuSyncTimer = timer;
   }
 }
