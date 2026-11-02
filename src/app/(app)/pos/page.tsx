@@ -54,7 +54,6 @@ export default function PosPage() {
   const products = useLiveQuery(() => db.products.orderBy("sort_order").toArray(), []);
   const variants = useLiveQuery(() => db.variants.toArray(), []);
   const tables = useLiveQuery(() => db.dtables.toArray(), []);
-  const ingredientsQty = useLiveQuery(() => db.ingredients.toArray(), []);
 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerSel, setCustomerSel] = useState<string | null>(null);
@@ -78,7 +77,7 @@ export default function PosPage() {
   }, []);
 
   useEffect(() => {
-    db.categories.orderBy("sort_order").toArray().then(setCats).catch(() => {});
+    try { db?.categories?.orderBy("sort_order").toArray().then(setCats).catch(() => {}); } catch { /* ignore */ }
   }, [products?.length]);
 
   /* pelanggan (butuh internet, opsional) */
@@ -113,12 +112,6 @@ export default function PosPage() {
     return map;
   }, [variants]);
 
-  const ingredientQtyMap = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const i of ingredientsQty ?? []) map.set(i.id, i.qty);
-    return map;
-  }, [ingredientsQty]);
-  void ingredientQtyMap; // estimasi ketersediaan lanjutan; server tetap verifikasi
 
   const paidNum = method === "cash" ? parseNumber(paid) : 0;
   const t = totals(cart, discount, paidNum);
