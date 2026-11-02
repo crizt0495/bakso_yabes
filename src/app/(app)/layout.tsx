@@ -5,6 +5,10 @@ import { SyncBoot } from "@/features/sync/use-sync-status";
 
 /** Layout dashboard terlindungi — middleware sudah menjaga sesi. */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) redirect("/login");
+
   const supabase = await supabaseServer();
   const {
     data: { user },
@@ -13,11 +17,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!user) redirect("/login");
 
   // nama profil & bisnis untuk tampilan shell
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, businesses(name)")
-    .eq("id", user.id)
-    .maybeSingle();
+  let profile: any = null;
+  try {
+    const { data } = await supabase
+      .from("profiles")
+      .select("full_name, businesses(name)")
+      .eq("id", user.id)
+      .maybeSingle();
+    profile = data;
+  } catch {
+    profile = null;
+  }
 
   return (
     <AppShell

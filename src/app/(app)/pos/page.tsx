@@ -62,7 +62,8 @@ export default function PosPage() {
   /* cache pertama kali */
   useEffect(() => {
     (async () => {
-      const ok = await refreshCache();
+      let ok = false;
+      try { ok = await refreshCache(); } catch { ok = false; }
       if (!ok) {
         const cached = await db.products.count();
         if (cached > 0) toast.info("Menampilkan data ter-cache — internet tidak tersedia.");

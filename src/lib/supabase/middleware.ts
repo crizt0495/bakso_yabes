@@ -15,6 +15,13 @@ export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (!url || !key) {
+    // Tanpa konfigurasi, jangan crash — arahkan ke /login (halaman publik).
+    if (!isPublic(pathname)) {
+      const redirect = request.nextUrl.clone();
+      redirect.pathname = "/login";
+      redirect.search = "";
+      return NextResponse.redirect(redirect);
+    }
     return response;
   }
 
