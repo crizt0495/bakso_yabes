@@ -5,8 +5,20 @@ import { useEffect, useState } from "react";
 import { db } from "./db";
 import { onSyncStateChange, retryFailed, setupAutoSync, syncNow } from "./sync-engine";
 
-const QueuedPending = () => db.sale_queue.filter((r) => r.status !== "synced").count();
-const QueuedSyncing = () => db.sale_queue.filter((r) => r.status === "syncing").count();
+const QueuedPending = async () => {
+  try {
+    return await db.sale_queue.filter((r) => r.status !== "synced").count();
+  } catch {
+    return 0;
+  }
+};
+const QueuedSyncing = async () => {
+  try {
+    return await db.sale_queue.filter((r) => r.status === "syncing").count();
+  } catch {
+    return 0;
+  }
+};
 
 /**
  * Hook status koneksi & sinkronisasi — dipakai header/badge/tombol sinkron.

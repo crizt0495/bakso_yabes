@@ -51,9 +51,30 @@ export default function PosPage() {
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [receiptData, setReceiptData] = useState<ReceiptReady | null>(null);
 
-  const products = useLiveQuery(() => db.products.orderBy("sort_order").toArray(), []);
-  const variants = useLiveQuery(() => db.variants.toArray(), []);
-  const tables = useLiveQuery(() => db.dtables.toArray(), []);
+  const products = useLiveQuery(async () => {
+    try {
+      const list = await db.products.toArray();
+      return list.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    } catch {
+      return [];
+    }
+  }, [], []);
+
+  const variants = useLiveQuery(async () => {
+    try {
+      return await db.variants.toArray();
+    } catch {
+      return [];
+    }
+  }, [], []);
+
+  const tables = useLiveQuery(async () => {
+    try {
+      return await db.dtables.toArray();
+    } catch {
+      return [];
+    }
+  }, [], []);
 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerSel, setCustomerSel] = useState<string | null>(null);

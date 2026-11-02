@@ -101,6 +101,9 @@ export class BaksokuDB extends Dexie {
     this.version(2).stores({
       recipe_items: "++id, product_id",
     }).upgrade((tx) => tx.table("recipe_items").clear());
+    this.version(3).stores({
+      products: "id, category_id, is_active, sort_order",
+    });
   }
 }
 
