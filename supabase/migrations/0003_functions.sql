@@ -174,6 +174,15 @@ begin
         left join public.stock_balances sb on sb.ingredient_id = i.id
         where ri.recipe_id = v_recipe
           and (ri.product_variant_id = v_variant or ri.product_variant_id is null)
+          -- hindari double-count: jika bahan punya item khusus varian, jangan hitung item generiknya
+          and not (
+            ri.product_variant_id is null and v_variant is not null and exists (
+              select 1 from public.recipe_items ri2
+              where ri2.recipe_id = v_recipe
+                and ri2.ingredient_id = ri.ingredient_id
+                and ri2.product_variant_id = v_variant
+            )
+          )
       loop
         v_cost := round(((v_r->>'qty_per_unit')::numeric * v_qty * (v_r->>'unit_cost')::numeric)::numeric, 2);
         v_hpp := v_hpp + v_cost;
@@ -317,8 +326,7 @@ begin
   loop
     insert into public.stock_balances (ingredient_id, business_id, qty)
       values (v_r.iid, v_business, 0)
-      on conflict (ingredient_id) do update set qty = public.stock_balances.qty
-        where false;
+      on conflict (ingredient_id) do nothing;
 
     update public.stock_balances
       set qty = qty + v_r.consumed, updated_at = now()

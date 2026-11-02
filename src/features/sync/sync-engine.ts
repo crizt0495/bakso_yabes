@@ -54,14 +54,18 @@ async function registerDevice(deviceId: string) {
     const supabase = supabaseBrowser();
     const label = navigator.userAgent.slice(0, 80);
     const deviceCode = `dev-${deviceId.slice(0, 8)}`;
+    // butuh business_id (RLS) — ambil dari profil pemilik
+    const { data: profile } = await supabase.from("profiles").select("business_id").maybeSingle();
+    const businessId = (profile as { business_id?: string } | null)?.business_id;
+    if (!businessId) return;
     await supabase
       .from("devices")
-      .upsert({ device_code: deviceCode, label, is_active: true, last_seen_at: new Date().toISOString() })
+      .upsert({ business_id: businessId, device_code: deviceCode, label, is_active: true, last_seen_at: new Date().toISOString() })
       .select("id");
-    // simpan uuid server (opsional; fallback pakai device local id)
     const { data } = await supabase
       .from("devices")
       .select("id")
+      .eq("business_id", businessId)
       .eq("device_code", deviceCode)
       .maybeSingle();
     if (data?.id) await kvSet("device_server_id", data.id);
