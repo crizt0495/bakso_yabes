@@ -15,19 +15,40 @@ export interface RupiahInputProps
 
 /**
  * Input nominal rupiah dengan pemisah ribuan otomatis (1.000.000).
- * Nilai yang dikirim ke onChange selalu berupa angka bulat.
+ * - Awal input KOSONG (bukan "0"), user ketik mulai dari angka pertama.
+ * - Setiap ketikan → format otomatis ribuan (1000 → 1.000).
+ * - Hapus semua → input kosong, onChange menerima 0 (bisa direset form).
+ * - Mengetik "0" → tetap menampilkan "0".
  */
-export function RupiahInput({ value, onChange, className, ...props }: RupiahInputProps) {
-  const [display, setDisplay] = React.useState(() => ribuan(value));
+export function RupiahInput({
+  value,
+  onChange,
+  className,
+  ...props
+}: RupiahInputProps) {
+  // Mulai KOSONG sama sekali, terlepas dari value 0/null/undefined.
+  // User akan ketik angka pertama dan ribuan akan muncul.
+  const initialDisplay = "";
 
-  // Ikuti perubahan nilai dari luar (edit/reset form) tanpa mengganggu ketikan.
+  const [display, setDisplay] = React.useState(initialDisplay);
+
+  // Senkronisasi dari luar (mis. reset form): reset ke kosong jika value berubah jadi null/undefined
   React.useEffect(() => {
-    setDisplay((prev) => {
-      const prevNum = digitNominal(prev) ? Number(digitNominal(prev)) : 0;
-      const nextDigits = digitNominal(value);
-      const nextNum = nextDigits ? Number(nextDigits) : 0;
-      return prevNum === nextNum ? prev : ribuan(value);
-    });
+    if (value === null || value === undefined) {
+      setDisplay("");
+      return;
+    }
+    // Jika value berubah jadi angka tertentu, tetap jaga tapi jangan reset ke "0"
+    // karena kita mulai dari kosong; user yang akan mengisi.
+    const curDigits = digitNominal(String(value));
+    const curNum = curDigits ? Number(curDigits) : 0;
+    // Jika ada nilai numeric dan display masih kosong, kita bisa isi awalnya
+    // tapi biarkan user kontrol. Hanya jaga agar tidak terjadi berkipas.
+    if (display === "") {
+      // Jika value ada dan user belum ketik apa-apa, tampilkan angka asli tanpa ribuan dulu
+      // atau biarkan kosong bi user ketik.
+      setDisplay(""); // biarkan kosong, user akan ketik
+    }
   }, [value]);
 
   return (
@@ -39,7 +60,15 @@ export function RupiahInput({ value, onChange, className, ...props }: RupiahInpu
       className={className}
       value={display}
       onChange={(e) => {
-        const digits = digitNominal(e.target.value);
+        const raw = e.target.value;
+        const digits = digitNominal(raw);
+        // Jika user hapus semua atau kosongkan → kirim 0 ke parent
+        if (!raw || raw.trim() === "") {
+          setDisplay("");
+          onChange?.(0);
+          return;
+        }
+        // Jika user ketikan, tampilkan format ribuan
         setDisplay(digits ? ribuan(digits) : "");
         onChange?.(digits ? Number(digits) : 0);
       }}
