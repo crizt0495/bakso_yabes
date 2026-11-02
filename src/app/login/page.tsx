@@ -19,7 +19,6 @@ export default function LoginPage() {
 function LoginForm() {
   const search = useSearchParams();
   const next = search.get("next") ?? "/dashboard";
-  const envMissing = !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -67,13 +66,6 @@ function LoginForm() {
 
         <Card className="shadow-xl">
           <CardContent className="p-6">
-            {envMissing && (
-              <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-                Konfigurasi Supabase belum diatur. Set <code>NEXT_PUBLIC_SUPABASE_URL</code> dan
-                <code className="ml-1">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> di Vercel → Settings →
-                Environment Variables, lalu redeploy.
-              </div>
-            )}
             <form onSubmit={onSubmit} noValidate>
               <Field label="Username">
                 <div className="relative">
@@ -109,7 +101,7 @@ function LoginForm() {
                 </p>
               )}
 
-              <Button type="submit" size="lg" className="w-full" disabled={loading || envMissing}>
+              <Button type="submit" size="lg" className="w-full" disabled={loading}>
                 {loading ? "Memproses…" : "Masuk"}
               </Button>
             </form>
