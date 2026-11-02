@@ -19,9 +19,11 @@ as $$
 declare
   v_business uuid;
   v_sale jsonb;
-  v_item jsonb;
+  v_item record;
   v_r jsonb;
   v_recipe uuid;
+  v_recipe_items jsonb;
+  v_snap record;
   v_items int;
   v_subtotal numeric(14,2) := 0;
   v_discount numeric(14,2);
@@ -82,11 +84,11 @@ begin
 
   v_subtotal := 0;
   for v_item in select * from jsonb_array_elements(p_payload->'items') loop
-    if coalesce((v_item->>'qty')::numeric, 0) <= 0
-       or coalesce((v_item->>'unit_price')::numeric, -1) < 0 then
+    if coalesce((v_item.value->>'qty')::numeric, 0) <= 0
+       or coalesce((v_item.value->>'unit_price')::numeric, -1) < 0 then
       raise exception 'ES_VALIDATION: qty dan unit_price item tidak boleh <= 0';
     end if;
-    v_subtotal := v_subtotal + round((v_item->>'qty')::numeric * (v_item->>'unit_price')::numeric, 2);
+    v_subtotal := v_subtotal + round((v_item.value->>'qty')::numeric * (v_item.value->>'unit_price')::numeric, 2);
   end loop;
 
   v_discount := least(greatest(coalesce((p_payload->>'discount')::numeric, 0), 0), v_subtotal);
@@ -137,44 +139,68 @@ begin
 
   -- Elemen 5: items + snapshot harga
   for v_item in select * from jsonb_array_elements(p_payload->'items') loop
-    v_qty       := (v_item->>'qty')::numeric;
-    v_line_total:= round(v_qty * (v_item->>'unit_price')::numeric, 2);
-    v_variant   := (v_item->>'variant_id')::uuid;
+    v_qty       := (v_item.value->>'qty')::numeric;
+    v_line_total:= round(v_qty * (v_item.value->>'unit_price')::numeric, 2);
+    v_variant   := (v_item.value->>'variant_id')::uuid;
 
     insert into public.sale_items (
       business_id, sale_id, product_id, product_variant_id,
       product_name, variant_name, qty, unit_price, line_total, note
     ) values (
       v_business, v_sale_id,
-      (v_item->>'product_id')::uuid, v_variant,
-      coalesce(v_item->>'product_name', '(produk terhapus)'),
-      v_item->>'variant_name',
-      v_qty, (v_item->>'unit_price')::numeric, v_line_total,
-      nullif(v_item->>'note', '')
+      (v_item.value->>'product_id')::uuid, v_variant,
+      coalesce(v_item.value->>'product_name', '(produk terhapus)'),
+      v_item.value->>'variant_name',
+      v_qty, (v_item.value->>'unit_price')::numeric, v_line_total,
+      nullif(v_item.value->>'note', '')
     ) returning id into v_item_id;
 
-    -- Elemen 6: snapshot resep & HPP
-    if coalesce(v_item->>'product_id', '') <> '' then
+    -- Elemen 6: snapshot resep & HPP (iterasi via jsonb_agg agar akses field stabil)
+    if coalesce(v_item.value->>'product_id', '') <> '' then
       select r.id into v_recipe
         from public.recipes r
-        where r.product_id = (v_item->>'product_id')::uuid
+        where r.product_id = (v_item.value->>'product_id')::uuid
           and r.business_id = v_business
           and r.is_active
         limit 1;
 
-      for v_r in
-        select ri.ingredient_id::text as ingredient_id,
-               i.name as ingredient_name,
-               coalesce(u.symbol, i.name) as unit_symbol,
-               ri.qty::numeric as qty_per_unit,
-               coalesce(sb.avg_cost, 0)::numeric as unit_cost
+      select coalesce(jsonb_agg(jsonb_build_object(
+               'ingredient_id', ri.ingredient_id,
+               'ingredient_name', i.name,
+               'unit_symbol', coalesce(u.symbol, i.name),
+               'qty_per_unit', ri.qty,
+               'unit_cost', coalesce(sb.avg_cost, 0)
+             )), '[]'::jsonb)
+        into v_recipe_items
         from public.recipe_items ri
         join public.ingredients i on i.id = ri.ingredient_id
         left join public.units u on u.id = i.unit_id
         left join public.stock_balances sb on sb.ingredient_id = i.id
         where ri.recipe_id = v_recipe
           and (ri.product_variant_id = v_variant or ri.product_variant_id is null)
-          -- hindari double-count: jika bahan punya item khusus varian, jangan hitung item generiknya
+          and not (
+            ri.product_variant_id is null and v_variant is not null and exists (
+              select 1 from public.recipe_items ri2
+              where ri2.recipe_id = v_recipe
+                and ri2.ingredient_id = ri.ingredient_id
+                and ri2.product_variant_id = v_variant
+            )
+          );
+
+      -- hitung HPP per item dan simpan snapshot (INSERT...SELECT, hindari loop record)
+      with calc as (
+        select ri.ingredient_id,
+               i.name as ingredient_name,
+               coalesce(u.symbol, i.name) as unit_symbol,
+               ri.qty as qty_per_unit,
+               coalesce(sb.avg_cost, 0)::numeric as unit_cost,
+               round(ri.qty * v_qty * coalesce(sb.avg_cost, 0), 2) as line_cost
+        from public.recipe_items ri
+        join public.ingredients i on i.id = ri.ingredient_id
+        left join public.units u on u.id = i.unit_id
+        left join public.stock_balances sb on sb.ingredient_id = i.id
+        where ri.recipe_id = v_recipe
+          and (ri.product_variant_id = v_variant or ri.product_variant_id is null)
           and not (
             ri.product_variant_id is null and v_variant is not null and exists (
               select 1 from public.recipe_items ri2
@@ -183,56 +209,78 @@ begin
                 and ri2.product_variant_id = v_variant
             )
           )
-      loop
-        v_cost := round(((v_r->>'qty_per_unit')::numeric * v_qty * (v_r->>'unit_cost')::numeric)::numeric, 2);
-        v_hpp := v_hpp + v_cost;
+      )
+      insert into public.sale_item_recipe_snapshots (
+        business_id, sale_item_id,
+        product_id, ingredient_id, ingredient_name,
+        qty, consumed_qty, unit_symbol, unit_cost, line_cost
+      )
+      select v_business, v_item_id,
+             (v_item.value->>'product_id')::uuid,
+             c.ingredient_id, c.ingredient_name,
+             c.qty_per_unit, c.qty_per_unit * v_qty, c.unit_symbol, c.unit_cost, c.line_cost
+      from calc c;
 
-        insert into public.sale_item_recipe_snapshots (
-          business_id, sale_item_id,
-          product_id, ingredient_id, ingredient_name,
-          qty, consumed_qty, unit_symbol, unit_cost, line_cost
-        ) values (
-          v_business, v_item_id,
-          (v_item->>'product_id')::uuid,
-          (v_r->>'ingredient_id')::uuid,
-          v_r->>'ingredient_name',
-          (v_r->>'qty_per_unit')::numeric,
-          (v_r->>'qty_per_unit')::numeric * v_qty,
-          v_r->>'unit_symbol',
-          (v_r->>'unit_cost')::numeric,
-          v_cost
-        );
-      end loop;
+      select coalesce(sum(round(ri.qty * v_qty * coalesce(sb.avg_cost, 0), 2)), 0)::numeric(14,2)
+        into v_cost
+        from public.recipe_items ri
+        left join public.stock_balances sb on sb.ingredient_id = ri.ingredient_id
+        where ri.recipe_id = v_recipe
+          and (ri.product_variant_id = v_variant or ri.product_variant_id is null)
+          and not (
+            ri.product_variant_id is null and v_variant is not null and exists (
+              select 1 from public.recipe_items ri2
+              where ri2.recipe_id = v_recipe
+                and ri2.ingredient_id = ri.ingredient_id
+                and ri2.product_variant_id = v_variant
+            )
+          );
+      v_hpp := v_hpp + coalesce(v_cost, 0);
     end if;
   end loop;
 
   update public.sales set hpp_total = v_hpp where id = v_sale_id;
 
-  -- Elemen 7: pengurangan stok (HPP/stok moment) - agregat per bahan
-  for v_r in
-    select snap.ingredient_id::text as iid,
-           sum(snap.consumed_qty)::numeric as consumed,
-           array_agg(snap.ingredient_name)[1] as nm
+  -- Elemen 7: pengurangan stok (HPP/stok moment) - agregat per bahan (set-based, tanpa FOR loop)
+  insert into public.stock_balances (ingredient_id, business_id, qty, avg_cost)
+  select agg.ingredient_id, v_business, -agg.consumed, 0
+  from (
+    select snap.ingredient_id as ingredient_id,
+           sum(snap.consumed_qty)::numeric as consumed
     from public.sale_items si
     join public.sale_item_recipe_snapshots snap on snap.sale_item_id = si.id
     where si.sale_id = v_sale_id and snap.ingredient_id is not null
     group by snap.ingredient_id
-  loop
-    -- balance: kurangi qty (bisa minus, karena transaksi offline; lihat rekonsiliasi)
-    insert into public.stock_balances (ingredient_id, business_id, qty, avg_cost)
-      values ((v_r->>'iid')::uuid, v_business, 0 - (v_r->>'consumed')::numeric, 0)
-      on conflict (ingredient_id) do update
-        set qty = public.stock_balances.qty + excluded.qty, updated_at = now();
+  ) agg
+  on conflict (ingredient_id) do nothing;
 
-    insert into public.stock_movements (
-      business_id, ingredient_id, movement_type, qty_change, unit_cost,
-      ref_type, ref_id, ref_note, device_id, created_by, occurred_at
-    ) values (
-      v_business, (v_r->>'iid')::uuid, 'sale', -1 * (v_r->>'consumed')::numeric, null,
-      'sale', v_sale_id, v_receipt_no,
-      (nullif(p_payload->>'device_id', ''))::uuid, auth.uid(), v_occurred
-    );
-  end loop;
+  update public.stock_balances sb
+  set qty = sb.qty - agg.consumed, updated_at = now()
+  from (
+    select snap.ingredient_id as ingredient_id,
+           sum(snap.consumed_qty)::numeric as consumed
+    from public.sale_items si
+    join public.sale_item_recipe_snapshots snap on snap.sale_item_id = si.id
+    where si.sale_id = v_sale_id and snap.ingredient_id is not null
+    group by snap.ingredient_id
+  ) agg
+  where sb.ingredient_id = agg.ingredient_id;
+
+  insert into public.stock_movements (
+    business_id, ingredient_id, movement_type, qty_change, unit_cost,
+    ref_type, ref_id, ref_note, device_id, created_by, occurred_at
+  )
+  select v_business, agg.ingredient_id, 'sale', -agg.consumed, null,
+         'sale', v_sale_id, v_receipt_no,
+         (nullif(p_payload->>'device_id', ''))::uuid, auth.uid(), v_occurred
+  from (
+    select snap.ingredient_id as ingredient_id,
+           sum(snap.consumed_qty)::numeric as consumed
+    from public.sale_items si
+    join public.sale_item_recipe_snapshots snap on snap.sale_item_id = si.id
+    where si.sale_id = v_sale_id and snap.ingredient_id is not null
+    group by snap.ingredient_id
+  ) agg;
 
   -- Elemen 8: pembayaran & kas
   insert into public.payments (
@@ -316,32 +364,47 @@ begin
     raise exception 'ES_INVALID: hanya transaksi yang selesai dapat dibatalkan/direfund';
   end if;
 
-  -- 1) pulihkan stok dari snapshot resep
-  for v_r in
-    select snap.ingredient_id as iid, sum(snap.consumed_qty)::numeric as consumed
+  -- 1) pulihkan stok dari snapshot resep (set-based)
+  insert into public.stock_balances (ingredient_id, business_id, qty)
+  select agg.ingredient_id, v_business, 0
+  from (
+    select snap.ingredient_id as ingredient_id,
+           sum(snap.consumed_qty)::numeric as consumed
     from public.sale_items si
     join public.sale_item_recipe_snapshots snap on snap.sale_item_id = si.id
     where si.sale_id = v_sale.id and snap.ingredient_id is not null
     group by snap.ingredient_id
-  loop
-    insert into public.stock_balances (ingredient_id, business_id, qty)
-      values (v_r.iid, v_business, 0)
-      on conflict (ingredient_id) do nothing;
+  ) agg
+  on conflict (ingredient_id) do nothing;
 
-    update public.stock_balances
-      set qty = qty + v_r.consumed, updated_at = now()
-      where ingredient_id = v_r.iid;
+  update public.stock_balances sb
+  set qty = sb.qty + agg.consumed, updated_at = now()
+  from (
+    select snap.ingredient_id as ingredient_id,
+           sum(snap.consumed_qty)::numeric as consumed
+    from public.sale_items si
+    join public.sale_item_recipe_snapshots snap on snap.sale_item_id = si.id
+    where si.sale_id = v_sale.id and snap.ingredient_id is not null
+    group by snap.ingredient_id
+  ) agg
+  where sb.ingredient_id = agg.ingredient_id;
 
-    insert into public.stock_movements (
-      business_id, ingredient_id, movement_type, qty_change,
-      ref_type, ref_id, ref_note, created_by
-    ) values (
-      v_business, v_r.iid, p_mode, v_r.consumed,
-      'sale', v_sale.id,
-      p_mode || ' ' || v_sale.receipt_no || ': ' || trim(p_reason),
-      auth.uid()
-    );
-  end loop;
+  insert into public.stock_movements (
+    business_id, ingredient_id, movement_type, qty_change,
+    ref_type, ref_id, ref_note, created_by
+  )
+  select v_business, agg.ingredient_id, p_mode, agg.consumed,
+         'sale', v_sale.id,
+         p_mode || ' ' || v_sale.receipt_no || ': ' || trim(p_reason),
+         auth.uid()
+  from (
+    select snap.ingredient_id as ingredient_id,
+           sum(snap.consumed_qty)::numeric as consumed
+    from public.sale_items si
+    join public.sale_item_recipe_snapshots snap on snap.sale_item_id = si.id
+    where si.sale_id = v_sale.id and snap.ingredient_id is not null
+    group by snap.ingredient_id
+  ) agg;
 
   -- 2) pembayaran → refunded
   select method into v_method from public.payments
