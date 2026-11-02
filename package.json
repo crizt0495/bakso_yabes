@@ -1,8 +1,8 @@
 {
-  "name": "baksoku",
+  "name": "bakso-yabes",
   "version": "1.0.0",
   "private": true,
-  "description": "BaksoKu - Aplikasi manajemen warung bakso (POS, stok, resep/HPP, keuangan, QR menu, offline-first)",
+  "description": "Bakso Yabes - Aplikasi manajemen warung bakso (POS, stok, resep/HPP, keuangan, QR menu, offline-first)",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

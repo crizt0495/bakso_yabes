@@ -5,7 +5,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Palet BaksoKu: hijau tua, hijau muda, putih, krem
+        // Palet Bakso Yabes: hijau tua, hijau muda, putih, krem
         brand: {
           50: "#f0f7f2",
           100: "#dcefe1",

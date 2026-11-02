@@ -32,7 +32,7 @@ export function AppShell({ userName, businessName, children }: { userName: strin
     <header className="sticky top-0 z-30 flex h-14 items-center justify-between bg-brand-800 px-4 text-white lg:px-6">
       <div className="flex items-center gap-2">
         <CookingPot className="size-6" />
-        <span className="text-lg font-bold tracking-tight">BaksoKu</span>
+        <span className="text-lg font-bold tracking-tight">Bakso Yabes</span>
       </div>
       <div className="flex items-center gap-2">
         <StatusBadge />
@@ -56,7 +56,7 @@ export function AppShell({ userName, businessName, children }: { userName: strin
           <div className="flex items-center gap-2 px-5 py-5">
             <CookingPot className="size-7" />
             <div>
-              <p className="text-lg font-bold leading-tight">BaksoKu</p>
+              <p className="text-lg font-bold leading-tight">Bakso Yabes</p>
               <p className="truncate text-xs text-brand-300">{businessName}</p>
             </div>
           </div>

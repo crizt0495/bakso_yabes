@@ -106,7 +106,7 @@ export default function ReportsPage() {
 
   function exportSummary() {
     downloadCsv(`laporan-${from}_${to}.csv`, [
-      ["Laporan BaksoKu", from, "s/d", to],
+      ["Laporan Bakso Yabes", from, "s/d", to],
       [],
       ["Ringkasan", "Nilai"],
       ["Penjualan bersih", round2v(revenue)],

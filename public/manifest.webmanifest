@@ -1,6 +1,6 @@
 {
-  "name": "BaksoKu — Manajemen Warung Bakso",
-  "short_name": "BaksoKu",
+  "name": "Bakso Yabes — Manajemen Warung Bakso",
+  "short_name": "Bakso Yabes",
   "description": "Aplikasi kasir, stok, resep HPP, keuangan dan QR Menu warung bakso.",
   "id": "/dashboard",
   "start_url": "/dashboard",

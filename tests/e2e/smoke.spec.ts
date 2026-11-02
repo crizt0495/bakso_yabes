@@ -22,7 +22,7 @@ test.describe("smoke UI (tanpa kredensial)", () => {
     await page.goto("/menu/kodeyangtidakada1234", { waitUntil: "domcontentloaded" });
     // halaman menampilkan pesan error, bukan crash (app error boundary)
     const body = page.locator("body");
-    await expect(body).toContainText(/menu|BaksoKu|menemukan|error|server/i, { timeout: 10000 });
+    await expect(body).toContainText(/menu|Bakso Yabes|menemukan|error|server/i, { timeout: 10000 });
   });
 
   test("halaman offline tersedia (fallback service worker)", async ({ page }) => {

@@ -8,15 +8,15 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "BaksoKu",
-    template: "%s · BaksoKu",
+    default: "Bakso Yabes",
+    template: "%s · Bakso Yabes",
   },
   description: "Aplikasi manajemen warung bakso: kasir, stok, resep HPP, keuangan, QR menu.",
   manifest: "/manifest.webmanifest",
   icons: { icon: "/icons/icon.svg" },
   appleWebApp: {
     capable: true,
-    title: "BaksoKu",
+    title: "Bakso Yabes",
     statusBarStyle: "default",
   },
 };

@@ -1,5 +1,5 @@
 -- ============================================================
--- BaksoKu — Migration 0002: Row Level Security
+-- Bakso Yabes — Migration 0002: Row Level Security
 -- ============================================================
 -- Aplikasi ini hanya untuk PEMILIK (satu user). Semua tabel meng-
 -- gunakan RLS; anon tidak punya akses apa pun — QR Menu publik

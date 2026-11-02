@@ -1,5 +1,5 @@
 -- ============================================================
--- BaksoKu — Migration 0003: Fungsi Bisnis (RPC server-side atomik)
+-- Bakso Yabes — Migration 0003: Fungsi Bisnis (RPC server-side atomik)
 -- ============================================================
 -- Semua proses penting berjalan ATOMIK di database (SQL PL/pgSQL):
 -- 1) rpc_create_sale      → simpan transaksi + snapshot harga/resep

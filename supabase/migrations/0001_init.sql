@@ -1,5 +1,5 @@
 -- ============================================================
--- BaksoKu — Migration 0001: Struktur Skema
+-- Bakso Yabes — Migration 0001: Struktur Skema
 -- ============================================================
 -- Terapkan berurutan:
 --   supabase/migrations/0001_init.sql

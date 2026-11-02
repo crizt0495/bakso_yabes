@@ -63,7 +63,7 @@ export default function SetupPage() {
               <Input value={form.setup_secret} onChange={set("setup_secret")} type="password" />
             </Field>
             <Field label="Nama Warung">
-              <Input value={form.business_name} onChange={set("business_name")} placeholder="BaksoKu" />
+              <Input value={form.business_name} onChange={set("business_name")} placeholder="Bakso Yabes" />
             </Field>
             <Field label="Nama Lengkap">
               <Input value={form.full_name} onChange={set("full_name")} placeholder="Pak Budi" />

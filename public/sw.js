@@ -1,4 +1,4 @@
-/* BaksoKu Service Worker — offline-first PWA
+/* Bakso Yabes Service Worker — offline-first PWA
  * Strategi:
  *  - Icons & static assets : cache-first
  *  - Navigasi halaman      : network-first, fallback cache, fallback /offline

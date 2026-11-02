@@ -60,7 +60,7 @@ function LoginForm() {
           <div className="mx-auto mb-3 flex size-24 items-center justify-center rounded-3xl bg-white/10">
             <CookingPot className="size-12" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">BaksoKu</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Bakso Yabes</h1>
           <p className="mt-1 text-sm text-brand-200">Kasir & manajemen warung bakso</p>
         </div>
 

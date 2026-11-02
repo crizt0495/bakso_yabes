@@ -1,6 +1,6 @@
-# BaksoKu 🍜
+# Bakso Yabes 🍜
 
-**BaksoKu** adalah aplikasi manajemen warung bakso: kasir (online + offline),
+**Bakso Yabes** adalah aplikasi manajemen warung bakso: kasir (online + offline),
 stok bahan otomatis lewat resep, resep & HPP, pembelian, keuangan, pelanggan,
 QR Menu pelanggan, dan laporan lengkap — dibangun untuk satu pemilik yang
 merangkap kasir, dipakai di HP maupun laptop.

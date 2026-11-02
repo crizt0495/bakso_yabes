@@ -43,7 +43,7 @@ export function ReceiptDialog({
   const body = (
     <div id="struk" className="mx-auto w-[300px] bg-white font-mono text-[13px] text-gray-900">
       <div className="text-center">
-        <p className="text-lg font-bold tracking-widest">BAKSOKU</p>
+        <p className="text-lg font-bold tracking-widest">BAKSO YABES</p>
         <p className="text-xs text-gray-500">Struk transaksi</p>
       </div>
       <div className="my-2 border-y border-dashed border-gray-300 py-1.5 text-xs">
