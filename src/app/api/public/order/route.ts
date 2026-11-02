@@ -1,12 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { digitalOrderSchema } from "@/lib/validation/schemas";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { rateLimit, sweepRateLimit } from "@/lib/server/rate-limit";
 
 /**
  * Kirim pesanan dari QR Menu. Server yang menghitung harga (bukan klien)
  * supaya harga tidak dapat dimanipulasi. HTTP 201 hanya jika tersimpan.
  */
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
+  sweepRateLimit();
+  const rl = rateLimit(`order:${ip}`, 10, 5 * 60 * 1000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: `Terlalu banyak permintaan. Coba lagi dalam ${rl.retryAfter} detik.` },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfter) } },
+    );
+  }
   let body: unknown;
   try {
     body = await request.json();

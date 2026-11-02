@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { rateLimit, sweepRateLimit } from "@/lib/server/rate-limit";
 
 /** Menu publik untuk QR Menu — tidak membocorkan data lain (produk aktif saja). */
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
+  sweepRateLimit();
+  const rl = rateLimit(`menu:${ip}`, 60, 60 * 1000);
+  if (!rl.ok) {
+    return NextResponse.json({ error: "Terlalu banyak permintaan" }, { status: 429, headers: { "Retry-After": String(rl.retryAfter) } });
+  }
   const { code } = await params;
   const admin = supabaseAdmin();
 

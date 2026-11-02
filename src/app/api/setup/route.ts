@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { setupSchema } from "@/lib/validation/schemas";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { rateLimit, sweepRateLimit } from "@/lib/server/rate-limit";
 
 /**
  * Setup pemilik pertama — dipanggil sekali saja.
@@ -8,6 +9,12 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
  * Membuat: auth user, business, profile, satuan & kategori default.
  */
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
+  sweepRateLimit();
+  const rl = rateLimit(`setup:${ip}`, 5, 15 * 60 * 1000);
+  if (!rl.ok) {
+    return NextResponse.json({ error: "Terlalu banyak percobaan" }, { status: 429, headers: { "Retry-After": String(rl.retryAfter) } });
+  }
   const secret = process.env.SETUP_SECRET;
   if (!secret) {
     return NextResponse.json(
