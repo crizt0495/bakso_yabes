@@ -9,6 +9,7 @@ import { profit, round2 } from "@/lib/business/hpp";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, Badge } from "@/components/ui/card";
 import { Field, Input, Select, Textarea } from "@/components/ui/input";
+import { RupiahInput } from "@/components/ui/rupiah-input";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState, ErrorState, TableSkeleton } from "@/components/ui/states";
 import { ArrowDownCircle, ArrowUpCircle, Plus, Wallet } from "lucide-react";
@@ -248,7 +249,7 @@ function ExpenseDialog({ onClose, onSaved }: { onClose: () => void; onSaved: () 
         <Input value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Token listrik" />
       </Field>
       <Field label="Jumlah (Rp)">
-        <Input type="number" min={0} value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} />
+        <RupiahInput min={0} value={form.amount} onChange={(v) => setForm((f) => ({ ...f, amount: v > 0 ? String(v) : "" }))} />
       </Field>
       <Field label="Tanggal">
         <Input type="date" value={form.spent_at} onChange={(e) => setForm((f) => ({ ...f, spent_at: e.target.value }))} />

@@ -16,6 +16,20 @@ export function angka(value: number | string | null | undefined, digits = 0): st
   }).format(Number.isFinite(n) ? n : 0);
 }
 
+/** Ambil digit saja dari sebuah nominal (buang "Rp", titik, spasi, dsb). */
+export function digitNominal(value: number | string | null | undefined): string {
+  if (value === null || value === undefined || value === "") return "";
+  const raw = typeof value === "number" ? String(Math.trunc(Math.abs(value))) : String(value);
+  return raw.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+}
+
+/** Format nominal dengan pemisah ribuan Indonesia, tanpa "Rp" (untuk input). */
+export function ribuan(value: number | string | null | undefined): string {
+  const digits = digitNominal(value);
+  if (!digits) return "";
+  return new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(Number(digits));
+}
+
 /** Konversi numeric Postgres (di-return sbg string) ke number. */
 export function num(v: string | number | null | undefined): number {
   if (v === null || v === undefined) return 0;

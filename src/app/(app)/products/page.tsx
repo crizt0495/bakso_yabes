@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/card";
 import { Field, Input, Select, Textarea } from "@/components/ui/input";
+import { RupiahInput } from "@/components/ui/rupiah-input";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState, ErrorState, TableSkeleton } from "@/components/ui/states";
 import { Package, Plus, Search, Pencil, ArrowLeftRight, Tag, X } from "lucide-react";
@@ -432,13 +433,7 @@ function ProductFormDialog({
           </div>
           <div>
             <Field label="Harga jual (Rp)" error={errors.price}>
-              <Input
-                type="number"
-                inputMode="numeric"
-                min={0}
-                value={form.price}
-                onChange={(e) => set("price", Number(e.target.value))}
-              />
+              <RupiahInput min={0} value={form.price} onChange={(v) => set("price", v || 0)} />
             </Field>
           </div>
           <div>
@@ -499,15 +494,14 @@ function ProductFormDialog({
                     )
                   }
                 />
-                <Input
+                <RupiahInput
                   className="w-32"
-                  type="number"
                   min={0}
                   value={v.price}
-                  onChange={(e) =>
+                  onChange={(value) =>
                     set(
                       "variants",
-                      form.variants.map((x, j) => (j === i ? { ...x, price: Number(e.target.value) } : x)),
+                      form.variants.map((x, j) => (j === i ? { ...x, price: value || 0 } : x)),
                     )
                   }
                 />

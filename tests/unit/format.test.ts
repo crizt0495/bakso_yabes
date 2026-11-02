@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { hariIni, localDay, num, rupiah, jakartaDayStart } from "@/lib/utils/format";
+import {
+  digitNominal,
+  hariIni,
+  localDay,
+  num,
+  ribuan,
+  rupiah,
+  jakartaDayStart,
+} from "@/lib/utils/format";
 
 describe("format uang (Rupiah Indonesia)", () => {
   it("rupiah memakai format id-ID", () => {
@@ -10,6 +18,17 @@ describe("format uang (Rupiah Indonesia)", () => {
     expect(num("15000.50")).toBe(15000.5);
     expect(num(null)).toBe(0);
     expect(num("abc")).toBe(0);
+  });
+  it("ribuan menambahkan pemisah ribuan pada input nominal", () => {
+    expect(ribuan(1000)).toBe("1.000");
+    expect(ribuan("1000000")).toBe("1.000.000");
+    expect(ribuan("Rp 25.000")).toBe("25.000");
+    expect(ribuan("")).toBe("");
+  });
+  it("digitNominal hanya menyisakan digit", () => {
+    expect(digitNominal("1.000.000")).toBe("1000000");
+    expect(digitNominal("Rp 15.000")).toBe("15000");
+    expect(digitNominal(null)).toBe("");
   });
 });
 

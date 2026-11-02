@@ -13,6 +13,7 @@ import { useSyncStatus } from "@/features/sync/use-sync-status";
 import { Badge, Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/input";
+import { RupiahInput } from "@/components/ui/rupiah-input";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState, TableSkeleton } from "@/components/ui/states";
 import {
@@ -46,7 +47,7 @@ export default function PosPage() {
   const [tableId, setTableId] = useState<string>("");
   const [discount, setDiscount] = useState<number>(0);
   const [method, setMethod] = useState<"cash" | "qris">("cash");
-  const [paid, setPaid] = useState<string>("");
+  const [paid, setPaid] = useState<number>(0);
   const [note, setNote] = useState("");
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [receiptData, setReceiptData] = useState<ReceiptReady | null>(null);
@@ -136,7 +137,7 @@ export default function PosPage() {
   }, [variants]);
 
 
-  const paidNum = method === "cash" ? parseNumber(paid) : 0;
+  const paidNum = method === "cash" ? Number(paid) || 0 : 0;
   const t = totals(cart, discount, paidNum);
 
   function addProduct(productId: string, variantId?: string) {
@@ -198,7 +199,7 @@ export default function PosPage() {
       toast.error("Pilih nomor meja untuk makan di tempat");
       return;
     }
-    if (method === "cash" && parseNumber(paid) < t.total) {
+    if (method === "cash" && (Number(paid) || 0) < t.total) {
       toast.error("Nominal uang diterima kurang dari total");
       return;
     }
@@ -208,7 +209,7 @@ export default function PosPage() {
     const deviceId = await getDeviceId();
     const payload = buildSalePayload(cart, {
       discount,
-      paidAmount: method === "cash" ? parseNumber(paid) : t.total,
+      paidAmount: method === "cash" ? Number(paid) || 0 : t.total,
       paymentMethod: method,
       orderType,
       tableId: orderType === "dine_in" ? tableId : null,
@@ -238,7 +239,7 @@ export default function PosPage() {
       lines: cart,
       discount,
       method,
-      paid: method === "cash" ? parseNumber(paid) : t.total,
+      paid: method === "cash" ? Number(paid) || 0 : t.total,
       total: t.total,
       orderType,
       tableId,
@@ -247,7 +248,7 @@ export default function PosPage() {
     setReceiptData(fake);
     setCart([]);
     setDiscount(0);
-    setPaid("");
+    setPaid(0);
     setNote("");
     setOrderType("takeaway");
     toast.success(
@@ -406,8 +407,7 @@ export default function PosPage() {
                 </Field>
 
                 <Field label="Diskon (Rp)">
-                  <Input type="number" min={0} value={discount}
-                    onChange={(e) => setDiscount(Math.max(0, Number(e.target.value)))} />
+                  <RupiahInput min={0} value={discount} onChange={(v) => setDiscount(Math.max(0, v || 0))} />
                 </Field>
 
                 <Field label="Catatan">
@@ -426,13 +426,7 @@ export default function PosPage() {
 
                 {method === "cash" && (
                   <Field label="Uang diterima (Rp)">
-                    <Input
-                      type="number"
-                      value={paid}
-                      onChange={(e) => setPaid(e.target.value)}
-                      placeholder="0"
-                      min={0}
-                    />
+                    <RupiahInput value={paid} onChange={(v) => setPaid(v || 0)} placeholder="0" min={0} />
                   </Field>
                 )}
                 {method === "qris" && (
@@ -446,7 +440,7 @@ export default function PosPage() {
                   <Row label="Subtotal" value={rupiah(t.subtotal)} />
                   {discount > 0 && <Row label="Diskon" value={`- ${rupiah(t.discount)}`} red />}
                   <Row label="Total" value={rupiah(t.total)} big />
-                  {method === "cash" && parseNumber(paid) >= t.total && (
+                  {method === "cash" && (Number(paid) || 0) >= t.total && (
                     <Row label="Kembali" value={rupiah(t.change)} />
                   )}
                 </div>
@@ -561,10 +555,5 @@ function Row({ label, value, big, red }: { label: string; value: string; big?: b
       <span className={cn("tnum", red && "text-red-600")}>{value}</span>
     </div>
   );
-}
-
-function parseNumber(v: string): number {
-  const n = Number(v);
-  return Number.isFinite(n) ? n : 0;
 }
 

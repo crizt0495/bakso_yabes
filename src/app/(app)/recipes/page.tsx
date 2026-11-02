@@ -338,7 +338,7 @@ function RecipeEditor({
                 ))}
               </Select>
               <span className="tnum ml-auto text-xs text-gray-500">
-                {angka((Number(it.qty.replace(",", ".")) || 0) * num(ing?.stock_balances?.["avg_cost"] ?? 0)) }
+                {rupiah((Number(it.qty.replace(",", ".")) || 0) * num(ing?.stock_balances?.["avg_cost"] ?? 0))}
               </span>
               <Button variant="ghost" size="icon" onClick={() => setItems((xs) => xs.filter((_, j) => j !== idx))} aria-label="Hapus item">
                 <Trash2 className="size-4 text-red-500" />

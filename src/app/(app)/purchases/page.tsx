@@ -9,6 +9,7 @@ import { rupiah, tglPendek, hariIni } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, Badge } from "@/components/ui/card";
 import { Field, Input, Select, Textarea } from "@/components/ui/input";
+import { RupiahInput } from "@/components/ui/rupiah-input";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState, ErrorState, TableSkeleton } from "@/components/ui/states";
 import { Check, Plus, Trash2, Truck } from "lucide-react";
@@ -294,13 +295,12 @@ function PurchaseForm({
                 value={it.qty}
                 onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, qty: e.target.value } : x)))}
               />
-              <Input
+              <RupiahInput
                 className="w-32"
-                type="number"
                 min={0}
                 placeholder="Harga satuan"
                 value={it.unit_cost}
-                onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, unit_cost: e.target.value } : x)))}
+                onChange={(v) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, unit_cost: v > 0 ? String(v) : "" } : x)))}
               />
               <span className="tnum">{rupiah(parse(it.qty) * parse(it.unit_cost))}</span>
               <Button variant="ghost" size="icon" onClick={() => setItems((xs) => xs.filter((_, j) => j !== idx))} aria-label="Hapus item">
