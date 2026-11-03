@@ -280,11 +280,11 @@ export default function PosPage() {
       {loading && <TableSkeleton rows={4} />}
 
       {!loading && (
-        <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+        <div className="grid gap-3 md:gap-4 lg:grid-cols-[1fr_360px]">
           {/* ---- Katalog ---- */}
           <div>
             <div className="mb-3 flex flex-wrap gap-2">
-              <div className="relative min-w-[180px] flex-1">
+              <div className="flex min-w-[150px] flex-1 items-center">
                 <Search className="pointer-events-none absolute left-3 top-3 size-4 text-gray-400" />
                 <Input className="pl-9" placeholder="Cari menu…" value={q} onChange={(e) => setQ(e.target.value)} />
               </div>
@@ -303,7 +303,7 @@ export default function PosPage() {
                 description={online ? "Tambahkan produk di menu Produk." : "Sambungkan internet sekali untuk mengunduh menu."}
               />
             ) : (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
+              <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-4">
                 {filteredProducts.map((p) => (
                   <ProductTile
                     key={p.id}
@@ -321,7 +321,7 @@ export default function PosPage() {
           </div>
 
           {/* ---- Keranjang ---- */}
-          <div className="lg:sticky lg:top-20 self-start">
+          <div className="sticky top-16 self-start lg:top-20">
             <Card>
               <CardContent className="p-4">
                 <div className="mb-3 grid grid-cols-2 gap-2">
@@ -430,7 +430,7 @@ export default function PosPage() {
                       type="number"
                       value={paid}
                       onChange={(e) => setPaid(e.target.value)}
-                      placeholder="0"
+                      placeholder="Masukkan nominal"
                       min={0}
                     />
                   </Field>
@@ -528,7 +528,7 @@ function ProductTile({
           else onPick();
         }}
         className={cn(
-          "flex h-24 w-full flex-col items-start justify-between rounded-2xl border border-brand-100 bg-white p-3 text-left shadow-card transition active:scale-95 disabled:opacity-40 disabled:grayscale",
+          "flex h-28 w-full flex-col items-start justify-between rounded-2xl border border-brand-100 bg-white p-3 text-left shadow-card transition active:scale-[0.98] disabled:opacity-40 disabled:grayscale touch-manipulation",
           isAvailable && "hover:border-brand-300",
         )}
       >

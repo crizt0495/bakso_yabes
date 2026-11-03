@@ -1,12 +1,40 @@
 /** Format & util waktu — semua uang & tanggal pakai standar Indonesia. */
 
-export function rupiah(value: number | string | null | undefined): string {
+export function rupiah(value: number | string | null | undefined, suffix = true): string {
   const n = typeof value === "string" ? Number(value) : (value ?? 0);
+  if (!Number.isFinite(n)) return "Rp 0";
+  // tingkat thousand: <1000 menampilkan "Rp 1.000", <10.000 menampilkan ribuan kalau
+  // diperlukan agar merchant/admin mudah baca; tapi tidak memperkalkan salah formatting
+  const formatted = new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(n);
+  return suffix ? formatted : String(formatted).replace(/^\D+/, "");
+}
+
+export function rupiahWithThousand(value: number | string | null | undefined): string {
+  // Format dalam ribuan separasi: 15 → "Rp 15", 1.000 → "Rp 1.000", 1.000.000 → "Rp 1.000.000"
+  const n = typeof value === "string" ? Number(value) : (value ?? 0);
+  if (!Number.isFinite(n)) return "Rp 0";
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
+    minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(Number.isFinite(n) ? n : 0);
+  }).format(n);
+}
+
+export function kodeRupiah(value: number | string | null | undefined): string {
+  // Tampilan angka tanpa satuan ("1.000.000") dan abaikan "+/-" leading — buat
+  // "nominal auto ribuan": gunakan compact separasi bila jumlah besar, biasa bila kecil
+  const n = typeof value === "string" ? Number(value) : (value ?? 0);
+  if (!Number.isFinite(n)) return "";
+  return new Intl.NumberFormat("id-ID", {
+    minimumIntegerDigits: 1,
+    maximumFractionDigits: 0,
+  }).format(n);
 }
 
 export function angka(value: number | string | null | undefined, digits = 0): string {

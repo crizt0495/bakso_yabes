@@ -436,9 +436,13 @@ function ProductFormDialog({
                 type="number"
                 inputMode="numeric"
                 min={0}
-                value={form.price}
+                value={form.price || ""}
                 onChange={(e) => set("price", Number(e.target.value))}
+                placeholder="mis. 15000"
               />
+              {form.price ? (
+                <p className="mt-1 text-xs text-gray-500">{rupiah(form.price)} — ribuan otomatis</p>
+              ) : null}
             </Field>
           </div>
           <div>
@@ -499,18 +503,24 @@ function ProductFormDialog({
                     )
                   }
                 />
-                <Input
-                  className="w-32"
-                  type="number"
-                  min={0}
-                  value={v.price}
-                  onChange={(e) =>
-                    set(
-                      "variants",
-                      form.variants.map((x, j) => (j === i ? { ...x, price: Number(e.target.value) } : x)),
-                    )
-                  }
-                />
+                <div className="w-32">
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    value={v.price || ""}
+                    onChange={(e) =>
+                      set(
+                        "variants",
+                        form.variants.map((x, j) => (j === i ? { ...x, price: Number(e.target.value) } : x)),
+                      )
+                    }
+                    placeholder="mis. 15000"
+                  />
+                  {v.price ? (
+                    <p className="mt-0.5 text-[11px] text-gray-400">{rupiah(v.price)}</p>
+                  ) : null}
+                </div>
                 <Button variant="ghost" size="icon" onClick={() => set("variants", form.variants.filter((_, j) => j !== i))} aria-label="Hapus variasi">
                   <X className="size-4" />
                 </Button>

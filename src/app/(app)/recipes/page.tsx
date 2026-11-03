@@ -315,7 +315,7 @@ function RecipeEditor({
                 type="number"
                 step="0.001"
                 min={0}
-                placeholder="0"
+                placeholder="biaya bahan"
                 value={it.qty}
                 onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, qty: e.target.value } : x)))}
               />

@@ -248,7 +248,7 @@ function ExpenseDialog({ onClose, onSaved }: { onClose: () => void; onSaved: () 
         <Input value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Token listrik" />
       </Field>
       <Field label="Jumlah (Rp)">
-        <Input type="number" min={0} value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} />
+        <Input type="number" min={0} value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} placeholder="mis. 50.000" />
       </Field>
       <Field label="Tanggal">
         <Input type="date" value={form.spent_at} onChange={(e) => setForm((f) => ({ ...f, spent_at: e.target.value }))} />
