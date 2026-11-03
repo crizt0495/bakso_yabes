@@ -293,7 +293,7 @@ function PurchaseForm({
                   min={0}
                   placeholder="Qty"
                   value={it.qty ? fmtInputRibuan(String(it.qty)) : ""}
-                  onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, qty: parseInputRibuan(e.target.value) } : x)))}
+                  onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, qty: String(parseInputRibuan(e.target.value)) } : x)))}
                 />
               </div>
               <div className="w-32">
@@ -303,7 +303,7 @@ function PurchaseForm({
                   min={0}
                   placeholder="Harga satuan"
                   value={it.unit_cost ? fmtInputRibuan(String(it.unit_cost)) : ""}
-                  onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, unit_cost: parseInputRibuan(e.target.value) } : x)))}
+                  onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, unit_cost: String(parseInputRibuan(e.target.value)) } : x)))}
                 />
               </div>
               <span className="tnum">{rupiah(parse(it.qty) * parse(it.unit_cost))}</span>

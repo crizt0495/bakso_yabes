@@ -318,7 +318,7 @@ function RecipeEditor({
                 min={0}
                 placeholder="biaya bahan"
                 value={it.qty ? fmtInputRibuan(String(it.qty)) : ""}
-                onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, qty: parseInputRibuan(e.target.value) } : x)))}
+                onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, qty: String(parseInputRibuan(e.target.value)) } : x)))}
               />
               <Select
                 className="w-40"

@@ -91,7 +91,7 @@ export function StockAdjustDialog({
 
       {kind === "opname" ? (
         <Field label="Jumlah hasil hitung fisik" hint="Selisih dikalkulasi otomatis & tercatat di jurnal">
-          <Input type="text" inputMode="numeric" step="0.001" value={qty ? fmtInputRibuan(String(qty)) : ""} onChange={(e) => setQty(parseInputRibuan(e.target.value))} placeholder="mis. 5" />
+          <Input type="text" inputMode="numeric" step="0.001" value={qty ? fmtInputRibuan(String(qty)) : ""} onChange={(e) => setQty(String(parseInputRibuan(e.target.value)))} placeholder="mis. 5" />
         </Field>
       ) : (
         <Field label={`Jumlah (${ingredient.units?.symbol})`}>

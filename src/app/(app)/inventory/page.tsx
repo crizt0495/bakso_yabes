@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { ingredientSchema, unitSchema } from "@/lib/validation/schemas";
 import type { Ingredient, StockMovement, Unit } from "@/types/database";
-import { num, angka, tglPendek, jam, rupiah } from "@/lib/utils/format";
+import { num, angka, tglPendek, jam, rupiah, fmtInputRibuan, parseInputRibuan } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, Badge } from "@/components/ui/card";
 import { Field, Input, Select, Textarea } from "@/components/ui/input";
@@ -319,7 +319,7 @@ function IngredientDialog({
         </Select>
       </Field>
       <Field label="Batas minimum stok" hint="Notifikasi muncul saat stok menipis">
-        <Input type="text" inputMode="numeric" min={0} step="0.001" value={minimumStock ? fmtInputRibuan(String(minimumStock)) : ""} onChange={(e) => setMinimumStock(parseInputRibuan(e.target.value))} placeholder="mis. 10" />
+        <Input type="text" inputMode="numeric" min={0} step="0.001" value={minimumStock ? fmtInputRibuan(String(minimumStock)) : ""} onChange={(e) => setMinimumStock(String(parseInputRibuan(e.target.value)))} placeholder="mis. 10" />
       </Field>
       <label className="mb-4 flex items-center gap-2 text-sm">
         <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
