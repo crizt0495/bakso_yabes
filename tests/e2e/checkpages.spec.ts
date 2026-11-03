@@ -4,7 +4,7 @@ test("pos check", async ({ page }) => {
   page.on("pageerror", (err) => errors.push(err.message));
   await page.goto("https://baksoyabes.vercel.app/login");
   await page.fill('input[autocomplete="username"]', "pemilik");
-  await page.fill('input[autocomplete="current-password"]', "BaksoYabes2026!");
+  await page.fill('input[autocomplete="current-password"]', "[REVOKED-PASSWORD]");
   await page.click('button[type="submit"]');
   await page.waitForTimeout(3000);
   await page.goto("https://baksoyabes.vercel.app/pos");

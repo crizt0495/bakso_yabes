@@ -190,9 +190,12 @@ function CustomerForm({
     }
     setBusy(true);
     const supabase = supabaseBrowser();
+    const { data: profile } = await supabase.from("profiles").select("business_id").maybeSingle();
+    const businessId = (profile as { business_id?: string } | null)?.business_id ?? null;
+    const dataWithBiz = { ...parsed.data, business_id: businessId };
     const q = customer
-      ? supabase.from("customers").update(parsed.data).eq("id", customer.id)
-      : supabase.from("customers").insert(parsed.data);
+      ? supabase.from("customers").update(dataWithBiz).eq("id", customer.id)
+      : supabase.from("customers").insert(dataWithBiz);
     const { error: dbErr } = await q;
     setBusy(false);
     if (dbErr) {
