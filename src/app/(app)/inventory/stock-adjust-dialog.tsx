@@ -95,7 +95,7 @@ export function StockAdjustDialog({
         </Field>
       ) : (
         <Field label={`Jumlah (${ingredient.units?.symbol})`}>
-          <Input type="number" step="0.001" min={0} value={qty} onChange={(e) => setQty(e.target.value)} placeholder="mis. 5" />
+          <Input type="text" inputMode="numeric" step="0.001" min={0} value={qty ? fmtInputRibuan(String(qty)) : ""} onChange={(e) => setQty(String(parseInputRibuan(e.target.value)))} placeholder="mis. 5" />
         </Field>
       )}
 

@@ -447,11 +447,7 @@ function ProductFormDialog({
           </div>
           <div>
             <Field label="Urutan tampil" hint="Semakin kecil semakin atas" error={errors.sort_order}>
-              <Input
-                type="number"
-                value={form.sort_order ?? 0}
-                onChange={(e) => set("sort_order", Number(e.target.value))}
-              />
+              <Input type="text" inputMode="numeric" value={form.sort_order ? fmtInputRibuan(String(form.sort_order)) : ""} onChange={(e) => set("sort_order", parseInputRibuan(e.target.value))} placeholder="mis. 1" />
             </Field>
           </div>
           <div className="sm:col-span-2">

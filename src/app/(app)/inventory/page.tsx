@@ -319,7 +319,7 @@ function IngredientDialog({
         </Select>
       </Field>
       <Field label="Batas minimum stok" hint="Notifikasi muncul saat stok menipis">
-        <Input type="text" inputMode="numeric" min={0} step="0.001" value={minimumStock ? fmtInputRibuan(String(minimumStock)) : ""} onChange={(e) => setMinimumStock(String(parseInputRibuan(e.target.value)))} placeholder="mis. 10" />
+        <Input type="text" inputMode="numeric" min={0} step="0.001" value={minimumStock ? fmtInputRibuan(String(minimumStock)) : ""} onChange={(e) => setMinimumStock(parseInputRibuan(e.target.value))} placeholder="mis. 10" />
       </Field>
       <label className="mb-4 flex items-center gap-2 text-sm">
         <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
