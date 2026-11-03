@@ -349,9 +349,14 @@ function ProductFormDialog({
     setSaving(true);
     try {
       const supabase = supabaseBrowser();
+      // ambil business_id dari profil (diperlukan oleh DB / RLS)
+      const { data: profile } = await supabase.from("profiles").select("business_id").maybeSingle();
+      const businessId = (profile as { business_id?: string } | null)?.business_id ?? null;
+
       const { variants, ...values } = parsed.data;
       const payloadDB = {
         ...values,
+        business_id: businessId,
         category_id: values.category_id || null,
         photo_url: values.photo_url || null,
       };
@@ -385,6 +390,7 @@ function ProductFormDialog({
           price: v.price,
           is_available: v.is_available,
           sort_order: v.sort_order ?? i,
+          business_id: businessId,
         };
         if (v.id) {
           await supabase.from("product_variants").update(row).eq("id", v.id);
