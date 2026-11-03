@@ -49,7 +49,7 @@ export function AppShell({ userName, businessName, children }: { userName: strin
   );
 
   return (
-    <div className="min-h-dvh bg-cream">
+    <div className="min-h-dvh bg-cream overflow-x-hidden">
       <div className="hidden lg:block">
         {/* ---------- Laptop: sidebar ---------- */}
         <div className="fixed inset-y-0 left-0 z-40 flex w-60 flex-col bg-brand-900 text-white">

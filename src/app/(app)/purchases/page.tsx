@@ -296,7 +296,7 @@ function PurchaseForm({
                   onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, qty: String(parseInputRibuan(e.target.value)) } : x)))}
                 />
               </div>
-              <div className="w-32">
+              <div className="w-full sm:w-32">
                 <Input
                   className="w-full"
                   inputMode="numeric"

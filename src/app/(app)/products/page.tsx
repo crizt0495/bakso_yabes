@@ -102,7 +102,7 @@ export default function ProductsPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Select className="w-44" value={catFilter} onChange={(e) => setCatFilter(e.target.value)}>
+        <Select className="w-full sm:w-44" value={catFilter} onChange={(e) => setCatFilter(e.target.value)}>
           <option value="all">Semua kategori</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
@@ -499,7 +499,7 @@ function ProductFormDialog({
                     )
                   }
                 />
-                <div className="w-32">
+                <div className="w-full sm:w-32">
                   <Input
                     type="text"
                     inputMode="numeric"

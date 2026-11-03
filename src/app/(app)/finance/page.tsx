@@ -77,8 +77,8 @@ export default function FinancePage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Input type="date" className="w-40" value={from} onChange={(e) => setFrom(e.target.value)} />
-          <Input type="date" className="w-40" value={to} onChange={(e) => setTo(e.target.value)} />
+          <Input type="date" className="w-full sm:w-40" value={from} onChange={(e) => setFrom(e.target.value)} />
+          <Input type="date" className="w-full sm:w-40" value={to} onChange={(e) => setTo(e.target.value)} />
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="size-4" /> Pengeluaran
           </Button>
