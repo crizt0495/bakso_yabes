@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useLiveQuery } from "dexie-react-hooks";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { buildSalePayload, totals, type CartLine } from "@/lib/business/sale";
-import { rupiah } from "@/lib/utils/format";
+import { rupiah, fmtInputRibuan, parseInputRibuan } from "@/lib/utils/format";
 import { cn, uid } from "@/lib/utils/cn";
 import { db, type CachedCategory } from "@/features/sync/db";
 import { enqueueSale, applyLocalStockDeduction, refreshCache, getDeviceId } from "@/features/sync/sync-engine";
@@ -370,10 +370,11 @@ export default function PosPage() {
                           </Button>
                           <Input
                             className="h-7 w-12 px-1 text-center text-sm"
-                            type="number"
+                            type="text"
+                            inputMode="numeric"
                             min={1}
-                            value={line.qty}
-                            onChange={(e) => setQty(idx, Number(e.target.value))}
+                            value={line.qty ? fmtInputRibuan(String(line.qty)) : ""}
+                            onChange={(e) => setQty(idx, parseInputRibuan(e.target.value))}
                           />
                           <Button variant="outline" size="icon" className="size-7" onClick={() => updateQty(idx, 1)}>
                             <Plus className="size-3" />
@@ -406,8 +407,8 @@ export default function PosPage() {
                 </Field>
 
                 <Field label="Diskon (Rp)">
-                  <Input type="number" min={0} value={discount}
-                    onChange={(e) => setDiscount(Math.max(0, Number(e.target.value)))} />
+                  <Input type="text" inputMode="numeric" value={discount ? fmtInputRibuan(String(discount)) : ""}
+                    onChange={(e) => setDiscount(Math.max(0, parseInputRibuan(e.target.value)))} placeholder="mis. 5000" />
                 </Field>
 
                 <Field label="Catatan">
@@ -427,9 +428,10 @@ export default function PosPage() {
                 {method === "cash" && (
                   <Field label="Uang diterima (Rp)">
                     <Input
-                      type="number"
-                      value={paid}
-                      onChange={(e) => setPaid(e.target.value)}
+                      type="text"
+                      inputMode="numeric"
+                      value={paid ? fmtInputRibuan(String(parseInt(paid) || 0)) : ""}
+                      onChange={(e) => setPaid(String(parseInputRibuan(e.target.value)))}
                       placeholder="Masukkan nominal"
                       min={0}
                     />

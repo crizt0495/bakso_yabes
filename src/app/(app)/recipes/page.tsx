@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { recipeItemSchema } from "@/lib/validation/schemas";
 import type { Ingredient, Product, RecipeItem } from "@/types/database";
-import { num, rupiah, angka } from "@/lib/utils/format";
+import { num, rupiah, angka, fmtInputRibuan, parseInputRibuan } from "@/lib/utils/format";
 import { recipeHpp } from "@/lib/business/hpp";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, Badge } from "@/components/ui/card";
@@ -312,12 +312,13 @@ function RecipeEditor({
               </Select>
               <Input
                 className="w-24"
-                type="number"
+                type="text"
+                inputMode="numeric"
                 step="0.001"
                 min={0}
                 placeholder="biaya bahan"
-                value={it.qty}
-                onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, qty: e.target.value } : x)))}
+                value={it.qty ? fmtInputRibuan(String(it.qty)) : ""}
+                onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, qty: parseInputRibuan(e.target.value) } : x)))}
               />
               <Select
                 className="w-40"

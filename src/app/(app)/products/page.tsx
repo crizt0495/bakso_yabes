@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { productSchema, categorySchema, type ProductInput } from "@/lib/validation/schemas";
 import type { Category, Product } from "@/types/database";
-import { num, rupiah } from "@/lib/utils/format";
+import { num, rupiah, fmtInputRibuan, parseInputRibuan } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/card";
@@ -433,11 +433,11 @@ function ProductFormDialog({
           <div>
             <Field label="Harga jual (Rp)" error={errors.price}>
               <Input
-                type="number"
+                type="text"
                 inputMode="numeric"
                 min={0}
-                value={form.price || ""}
-                onChange={(e) => set("price", Number(e.target.value))}
+                value={form.price ? fmtInputRibuan(String(form.price)) : ""}
+                onChange={(e) => set("price", parseInputRibuan(e.target.value))}
                 placeholder="mis. 15000"
               />
               {form.price ? (
@@ -505,14 +505,14 @@ function ProductFormDialog({
                 />
                 <div className="w-32">
                   <Input
-                    type="number"
+                    type="text"
                     inputMode="numeric"
                     min={0}
-                    value={v.price || ""}
+                    value={v.price ? fmtInputRibuan(String(v.price)) : ""}
                     onChange={(e) =>
                       set(
                         "variants",
-                        form.variants.map((x, j) => (j === i ? { ...x, price: Number(e.target.value) } : x)),
+                        form.variants.map((x, j) => (j === i ? { ...x, price: parseInputRibuan(e.target.value) } : x)),
                       )
                     }
                     placeholder="mis. 15000"

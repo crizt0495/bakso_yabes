@@ -14,6 +14,16 @@ export function rupiah(value: number | string | null | undefined, suffix = true)
   return suffix ? formatted : String(formatted).replace(/^\D+/, "");
 }
 
+/** Format number input agar otomatis ribuan saat mengetik (id-ID: 15000 → 15.000) */
+export function fmtInputRibuan(val: string): string {
+  const digits = val.replace(/\D/g, "");
+  if (!digits) return "";
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+export function parseInputRibuan(val: string): number {
+  return Number(val.replace(/\./g, "")) || 0;
+}
+
 export function rupiahWithThousand(value: number | string | null | undefined): string {
   // Format dalam ribuan separasi: 15 → "Rp 15", 1.000 → "Rp 1.000", 1.000.000 → "Rp 1.000.000"
   const n = typeof value === "string" ? Number(value) : (value ?? 0);

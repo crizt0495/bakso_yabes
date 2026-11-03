@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabaseBrowser } from "@/lib/supabase/client";
-import { angka, num } from "@/lib/utils/format";
+import { angka, num, fmtInputRibuan, parseInputRibuan } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
@@ -91,7 +91,7 @@ export function StockAdjustDialog({
 
       {kind === "opname" ? (
         <Field label="Jumlah hasil hitung fisik" hint="Selisih dikalkulasi otomatis & tercatat di jurnal">
-          <Input type="number" step="0.001" value={qty} onChange={(e) => setQty(e.target.value)} />
+          <Input type="text" inputMode="numeric" step="0.001" value={qty ? fmtInputRibuan(String(qty)) : ""} onChange={(e) => setQty(parseInputRibuan(e.target.value))} placeholder="mis. 5" />
         </Field>
       ) : (
         <Field label={`Jumlah (${ingredient.units?.symbol})`}>

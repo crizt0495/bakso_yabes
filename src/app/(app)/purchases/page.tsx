@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { purchaseSchema, supplierSchema } from "@/lib/validation/schemas";
 import type { Ingredient, Purchase, Supplier } from "@/types/database";
-import { rupiah, tglPendek, hariIni } from "@/lib/utils/format";
+import { rupiah, tglPendek, hariIni, fmtInputRibuan, parseInputRibuan } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, Badge } from "@/components/ui/card";
 import { Field, Input, Select, Textarea } from "@/components/ui/input";
@@ -286,22 +286,26 @@ function PurchaseForm({
                   </option>
                 ))}
               </Select>
-              <Input
-                className="w-24"
-                type="number"
-                min={0}
-                placeholder="Qty"
-                value={it.qty}
-                onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, qty: e.target.value } : x)))}
-              />
-              <Input
-                className="w-32"
-                type="number"
-                min={0}
-                placeholder="Harga satuan"
-                value={it.unit_cost}
-                onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, unit_cost: e.target.value } : x)))}
-              />
+              <div className="w-24">
+                <Input
+                  className="w-full"
+                  inputMode="numeric"
+                  min={0}
+                  placeholder="Qty"
+                  value={it.qty ? fmtInputRibuan(String(it.qty)) : ""}
+                  onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, qty: parseInputRibuan(e.target.value) } : x)))}
+                />
+              </div>
+              <div className="w-32">
+                <Input
+                  className="w-full"
+                  inputMode="numeric"
+                  min={0}
+                  placeholder="Harga satuan"
+                  value={it.unit_cost ? fmtInputRibuan(String(it.unit_cost)) : ""}
+                  onChange={(e) => setItems((xs) => xs.map((x, j) => (j === idx ? { ...x, unit_cost: parseInputRibuan(e.target.value) } : x)))}
+                />
+              </div>
               <span className="tnum">{rupiah(parse(it.qty) * parse(it.unit_cost))}</span>
               <Button variant="ghost" size="icon" onClick={() => setItems((xs) => xs.filter((_, j) => j !== idx))} aria-label="Hapus item">
                 <Trash2 className="size-4 text-red-500" />
