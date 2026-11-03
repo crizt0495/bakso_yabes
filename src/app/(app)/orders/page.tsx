@@ -112,7 +112,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-w-0 overflow-x-hidden">
       <div>
         <h1 className="text-xl font-bold text-brand-900">Pesanan Online</h1>
         <p className="text-sm text-gray-500">Pesanan masuk lewat QR Menu membutuhkan konfirmasi Anda.</p>

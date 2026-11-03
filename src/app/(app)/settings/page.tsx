@@ -92,7 +92,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-w-0 overflow-x-hidden">
       <div>
         <h1 className="text-xl font-bold text-brand-900">Pengaturan</h1>
         <p className="text-sm text-gray-500">Data warung, perangkat, konsistensi stok & backup.</p>

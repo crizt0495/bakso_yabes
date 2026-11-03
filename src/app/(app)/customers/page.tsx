@@ -59,7 +59,7 @@ export default function CustomersPage() {
   }, [sales]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-w-0 overflow-x-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-brand-900">Pelanggan</h1>
