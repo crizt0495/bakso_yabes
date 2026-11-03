@@ -32,24 +32,16 @@ export function RupiahInput({
 
   const [display, setDisplay] = React.useState(initialDisplay);
 
-  // Senkronisasi dari luar (mis. reset form): reset ke kosong jika value berubah jadi null/undefined
+  // Senkronisasi dari luar (edit/reset): hanya update jika angka berubah
   React.useEffect(() => {
-    if (value === null || value === undefined) {
-      setDisplay("");
-      return;
+    const extDigits = digitNominal(String(value));
+    const extNum = extDigits ? Number(extDigits) : 0;
+    const dispDigits = digitNominal(display);
+    const dispNum = dispDigits ? Number(dispDigits) : 0;
+    if (extNum !== dispNum) {
+      setDisplay(extDigits ? ribuan(extDigits) : "");
     }
-    // Jika value berubah jadi angka tertentu, tetap jaga tapi jangan reset ke "0"
-    // karena kita mulai dari kosong; user yang akan mengisi.
-    const curDigits = digitNominal(String(value));
-    const curNum = curDigits ? Number(curDigits) : 0;
-    // Jika ada nilai numeric dan display masih kosong, kita bisa isi awalnya
-    // tapi biarkan user kontrol. Hanya jaga agar tidak terjadi berkipas.
-    if (display === "") {
-      // Jika value ada dan user belum ketik apa-apa, tampilkan angka asli tanpa ribuan dulu
-      // atau biarkan kosong bi user ketik.
-      setDisplay(""); // biarkan kosong, user akan ketik
-    }
-  }, [value]);
+  }, [value, display]);
 
   return (
     <Input
